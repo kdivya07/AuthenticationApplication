@@ -5,7 +5,7 @@ import com.authentication.entities.LoginRequest;
 import com.authentication.exceptions.ExistingSessionException;
 import org.springframework.http.ResponseEntity;
 
-public interface UserService {
+public interface AuthenticationService {
 
     public UserSession login(LoginRequest loginRequest) throws ExistingSessionException;
 
