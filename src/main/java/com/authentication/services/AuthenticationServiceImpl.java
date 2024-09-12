@@ -41,7 +41,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
                 if (existingToken == null) {
                     String token = UUID.randomUUID().toString();
-                    UserSession session = new UserSession(loginRequest.getEmail(), user.getId(), token);
+                    UserSession session = new UserSession(loginRequest.getEmail(), token, user.getId());
 
                     inMemoryStorageService.put(loginRequest.getEmail(), token);
                     logger.info("User with email {} logged in successfully. Session token: {}", loginRequest.getEmail(), token);
