@@ -32,7 +32,7 @@ public class AuthenticationServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private InMemoryStorageServiceImpl inMemoryStorageService; // Ensure this matches the actual interface
+    private InMemoryStorageServiceImpl inMemoryStorageService;
 
     private User user;
 
@@ -41,7 +41,7 @@ public class AuthenticationServiceTest {
         user = new User();
         user.setId(1L);
         user.setEmail("test@example.com");
-        user.setPassword("password"); // Ensure this matches the password used in LoginRequest
+        user.setPassword("password");
     }
 
     @Test
