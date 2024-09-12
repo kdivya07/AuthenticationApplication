@@ -27,4 +27,23 @@ public class User {
     @Column(name = "email", unique = true)
     private String email;
 
+    public int getId() {
+        return id;
+    }
+
+    public @NotNull(message = EntityConstants.EMPTY_PASSWORD) @Size(min = 6, max = 12, message = EntityConstants.PASSWORD_SIZE) String getPassword() {
+        return password;
+    }
+
+    public void setPassword(@NotNull(message = EntityConstants.EMPTY_PASSWORD) @Size(min = 6, max = 12, message = EntityConstants.PASSWORD_SIZE) String password) {
+        this.password = password;
+    }
+
+    public void setEmail(@NotNull(message = EntityConstants.EMPTY_EMAIL) @Email(message = EntityConstants.VALID_EMAIL) String email) {
+        this.email = email;
+    }
+
+    public void setId(long l) {
+        this.id = id;
+    }
 }
