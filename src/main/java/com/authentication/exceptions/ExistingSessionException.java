@@ -1,6 +1,9 @@
 package com.authentication.exceptions;
 
-public class ExistingSessionException extends Exception {
+import lombok.Data;
+
+@Data
+public class ExistingSessionException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 

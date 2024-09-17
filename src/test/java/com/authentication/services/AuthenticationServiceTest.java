@@ -42,13 +42,18 @@ public class AuthenticationServiceTest {
         user.setId(1L);
         user.setEmail("test@example.com");
         user.setPassword("password");
+
+        String email = "test@example.com";
+        String token = "token123";
+        inMemoryStorageService.put(email, token);
+
     }
 
     @Test
-    void login_SuccessfulLogin_ReturnsUserSession() throws ExistingSessionException {
+    void login_SuccessfulLogin_ReturnsUserSession(){
 
         LoginRequest loginRequest = new LoginRequest("test@example.com", "password");
-        when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(any())).thenReturn(Optional.of(user));
         when(inMemoryStorageService.get(loginRequest.getEmail())).thenReturn(null);
 
         UserSession session = authenticationService.login(loginRequest);
@@ -57,12 +62,18 @@ public class AuthenticationServiceTest {
         assertEquals(loginRequest.getEmail(), session.getEmail());
         assertEquals(user.getId(), session.getId());
         assertNotNull(session.getToken());
-
         verify(inMemoryStorageService).put(loginRequest.getEmail(), session.getToken());
+
+        when(inMemoryStorageService.get(loginRequest.getEmail())).thenReturn(session.getToken());
+
+        ExistingSessionException thrown = assertThrows(ExistingSessionException.class, () ->{
+            authenticationService.login(loginRequest);
+        });
+        assertEquals(ErrorConstants.USER_ALREADY_LOGGED_IN, thrown.getMessage());
     }
 
     @Test
-    void login_ExistingSession_ThrowsExistingSessionException() throws ExistingSessionException {
+    void login_ExistingSession_ThrowsExistingSessionException() {
 
         LoginRequest loginRequest = new LoginRequest("test@example.com", "password");
         when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
@@ -77,9 +88,7 @@ public class AuthenticationServiceTest {
     @Test
     void login_IncorrectPassword_ThrowsExistingSessionException(){
         LoginRequest loginRequest = new LoginRequest("test@example.com", "wrongPassword");
-
         when(userRepository.findByEmail(any())).thenReturn(Optional.of(user));
-
         ExistingSessionException thrown = assertThrows(ExistingSessionException.class, () -> {
             authenticationService.login(loginRequest);
         });
@@ -90,7 +99,6 @@ public class AuthenticationServiceTest {
     void login_EmailNotFound_ThrowsExistingSessionException() throws ExistingSessionException {
         LoginRequest loginRequest = new LoginRequest("nonexistent@example.com", "password");
         when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.empty());
-
         ExistingSessionException thrown = assertThrows(ExistingSessionException.class, () -> {
             authenticationService.login(loginRequest);
         });
@@ -102,9 +110,7 @@ public class AuthenticationServiceTest {
         String token = UUID.randomUUID().toString();
         String email = "test@example.com";
         when(inMemoryStorageService.getEmailByToken(token)).thenReturn(email);
-
         String response = authenticationService.logout(token);
-
         assertEquals("Logged out: " + email, response);
         verify(inMemoryStorageService).remove(email);
     }
@@ -113,7 +119,6 @@ public class AuthenticationServiceTest {
     void logout_InvalidToken_ThrowsExistingSessionException() throws ExistingSessionException {
         String token = UUID.randomUUID().toString();
         when(inMemoryStorageService.getEmailByToken(token)).thenReturn(null);
-
         ExistingSessionException thrown = assertThrows(ExistingSessionException.class, () -> {
             authenticationService.logout(token);
         });
@@ -125,9 +130,7 @@ public class AuthenticationServiceTest {
         String token = UUID.randomUUID().toString();
         String email = "test@example.com";
         when(inMemoryStorageService.getEmailByToken(token)).thenReturn(email);
-
         ResponseEntity<String> response = authenticationService.validate(token);
-
         assertEquals(new ResponseEntity<>(ErrorConstants.VALID_SESSION + email, HttpStatus.OK), response);
     }
 
@@ -135,9 +138,7 @@ public class AuthenticationServiceTest {
     void validate_InvalidToken_ReturnsUnauthorized() {
         String token = UUID.randomUUID().toString();
         when(inMemoryStorageService.getEmailByToken(token)).thenReturn(null);
-
         ResponseEntity<String> response = authenticationService.validate(token);
-
         assertEquals(new ResponseEntity<>(ErrorConstants.INVALID_OR_EXPIRED_SESSION, HttpStatus.UNAUTHORIZED), response);
     }
 }

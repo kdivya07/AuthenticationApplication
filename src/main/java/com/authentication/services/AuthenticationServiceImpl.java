@@ -28,7 +28,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private InMemoryStorageService inMemoryStorageService;
 
 
-    public UserSession login(LoginRequest loginRequest) throws ExistingSessionException {
+    public UserSession login(LoginRequest loginRequest){
 
         logger.debug("Attempting to log in user with email: {}", loginRequest.getEmail());
         Optional<User> optionalUser = userRepository.findByEmail(loginRequest.getEmail());
@@ -62,7 +62,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
     @Override
-    public String logout(String token) throws ExistingSessionException {
+    public String logout(String token){
         logger.info("Attempting to logout user with token:{}", token);
         String email = inMemoryStorageService.getEmailByToken(token);
 
